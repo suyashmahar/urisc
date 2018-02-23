@@ -1,27 +1,28 @@
 `timescale 1ns/1ps
 
 /* 
- * Divides input clock of frequency of F in to two clocks of
- * frequency F/2, phase shifted by 180 degrees.
+ * Divides input clock of frequency of F in to N clocks of
+ * frequency F/N, phase shifted by 2*pi/N rads.
  */
 module clockDivider
-  (
-   input      clkIn,
-   output reg clk1,
-   output reg clk2
-   );
+  #(
+    parameter DIVIDE_BY = 2
+    )(
+      input 			   clkIn,
+      output reg [DIVIDE_BY - 1:0] clkOut
+      );
    
-   reg 	      clkState;
+   reg 		 clkState;
+   int 		 counter;
    
    initial begin
        clkState = 1'b0;
-       clk1 = 1'b0;
-       clk2 = 1'b1;
+       clkOut = {DIVIDE_BY{1'b0}} | 1'b1;
    end
-   
+
+   // Shifts the content of 
    always @(posedge clkIn) begin
-       clk1 <= ~clk1;
-       clk2 <= ~clk2;
+       clkOut <= {{clkOut[DIVIDE_BY - 2:0]},{clkOut[DIVIDE_BY-1]}};
    end
 endmodule // clockDivider
 
