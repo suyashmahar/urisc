@@ -4,12 +4,14 @@
  * Divides input clock of frequency of F in to two clocks of
  * frequency F/2, phase shifted by 180 degrees.
  */
-module clockDivider;
-   input clkIn;
-   output reg clk1;
-   output reg clk2;
-
-   reg 	  clkState;
+module clockDivider
+  (
+   input      clkIn,
+   output reg clk1,
+   output reg clk2
+   );
+   
+   reg 	      clkState;
    
    initial begin
        clkState = 1'b0;
@@ -22,4 +24,4 @@ module clockDivider;
        clk2 <= ~clk2;
    end
 endmodule // clockDivider
-   
+
