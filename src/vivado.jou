@@ -1,0 +1,18 @@
+#-----------------------------------------------------------
+# Vivado v2017.4 (64-bit)
+# SW Build 2086221 on Fri Dec 15 20:54:30 MST 2017
+# IP Build 2085800 on Fri Dec 15 22:25:07 MST 2017
+# Start of session at: Thu Feb 22 18:14:41 2018
+# Process ID: 5503
+# Current directory: /mnt/big/github/urisc/src
+# Command line: vivado
+# Log file: /mnt/big/github/urisc/src/vivado.log
+# Journal file: /mnt/big/github/urisc/src/vivado.jou
+#-----------------------------------------------------------
+start_gui
+create_project urisc /mnt/big/github/urisc/vivado -part xc7vx485tffg1157-1
+add_files -norecurse {/mnt/big/github/urisc/src/urisc.sv /mnt/big/github/urisc/src/globals.sv}
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
