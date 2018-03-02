@@ -1,10 +1,12 @@
 import Prelude as P
+
+import Control.Applicative
 import Data.Attoparsec.Text
 import Data.Monoid ((<>))
 import Data.Text
 import Data.Text.IO as T
-import Control.Applicative
 import qualified Options.Applicative as OptApp
+import Text.Printf
 
 -- Command line arguments for the assembler
 data CmdArgs = CmdArgs
@@ -17,6 +19,8 @@ data Instruction = Instruction
                    , argA :: Int
                    , argB :: Int
                    , argC :: Int } deriving (Show)
+
+type AsmFile = [Instruction]
 
 -- Searches and returns label name (<label_name>:)
 labelParser :: Parser String
@@ -75,7 +79,12 @@ instructionParser = do
   argB <- argumentParser
   char ','
   argC <- argumentParser
+  crap
   return $ Instruction labelName "subleq" argA argB argC
+  where crap = (try endOfLine) <|> (try comment) <|> (try endOfInput)
+
+parseAsmFile :: Parser AsmFile
+parseAsmFile = many $ wrapStrip instructionParser
 
 cmdArgs :: OptApp.Parser CmdArgs
 cmdArgs = CmdArgs
@@ -83,14 +92,25 @@ cmdArgs = CmdArgs
      ( OptApp.metavar "STRING"
        <> OptApp.help "Path of file to assemble" )
 
+-- Assembles a single instruction to binary
+assembleAndPrintInst :: (Either String Instruction) -> String
+assembleAndPrintInst inputVal = case inputVal of
+  Left error ->  "error: " ++ error
+  Right (Instruction labelName op argA argB argC) ->
+     "1" ++ (printf "%05b" argC) ++ (printf "%05b" argB) ++ (printf "%05b" argA)
+    
 readSourceCode :: CmdArgs -> IO ()
 readSourceCode (CmdArgs sourceFilePath) = do
-  P.putStrLn "Compiled, Linked and running!"
-
+  ls <- fmap Data.Text.lines (T.readFile sourceFilePath)
+  let parsed = P.map (parseOnly instructionParser) ls
+  let crap = P.map assembleAndPrintInst parsed
+  mapM_ P.putStrLn crap
+  
+  
 main :: IO ()
 main = (OptApp.execParser opts) >>= readSourceCode
   where
     opts = OptApp.info (OptApp.helper <*> cmdArgs)
       ( OptApp.fullDesc
-     <> OptApp.progDesc "Replicate a string"
-     <> OptApp.header "repstring - an example of the optparse-applicative package" )
+     <> OptApp.progDesc "Assembler for URISC (c) 2018 Suyash Mahar"
+     <> OptApp.header "Assembler for the Ultimate reduced instruction set computer" )
