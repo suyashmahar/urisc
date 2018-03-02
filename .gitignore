@@ -48,4 +48,29 @@ flycheck_*.el
 
 # directory configuration
 .dir-locals.el
-################################################################################
+#################################################################################### haskell ##########################
+#### DO NOT DELETE PRECEDING LINE
+#### PINE
+dist
+dist-*
+cabal-dev
+*.o
+*.hi
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+.hpc
+.hsenv
+.cabal-sandbox/
+cabal.sandbox.config
+*.prof
+*.aux
+*.hp
+*.eventlog
+.stack-work/
+cabal.project.local
+cabal.project.local~
+.HTF/
+.ghc.environment.*
+#### DO NOT DELETE THIS LINE
