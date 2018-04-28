@@ -74,3 +74,5 @@ cabal.project.local~
 .HTF/
 .ghc.environment.*
 #### DO NOT DELETE THIS LINE
+
+*.gch

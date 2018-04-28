@@ -17,7 +17,8 @@ On every cycle following operations are performed:
 Instruction Encoding
 ----
 
+```
    0     bbbbb     bbbbb     bbbbb  
    ^       ^         ^         ^  
 Unused     a         b         c  
-
+```

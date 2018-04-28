@@ -54,11 +54,11 @@ module top(clk, led);
    assign b = ir[9:5];
    assign c = ir[14:10];
    
-   // Performs the operation: 
-   //     ir <- mem[pc]
-   //     acc <- mem[b] - mem[a]
-   //     mem[b] <- acc
-   //     if (acc <= 0) pc <- acc
+   /* Performs the operation: 
+          ir <- mem[pc]
+          acc <- mem[b] - mem[a]
+          mem[b] <- acc
+          if (acc <= 0) pc <- c */
    reg [gc::WORD_SIZE - 1:0]  acc;
    
    always @(posedge clk) begin

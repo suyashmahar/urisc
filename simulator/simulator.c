@@ -40,14 +40,39 @@ void initializeMem(uint16_t *memRef, char **memContents, int memContentsLen) {
 
 // Executes the instruction at pc and returns the new pc value
 uint8_t executeInstruction(uint16_t *memRef, uint8_t pc) {
-  return pc+1;
+  uint16_t a = getArg(A, memRef[pc]);
+  uint16_t b = getArg(B, memRef[pc]);
+  uint16_t c = getArg(C, memRef[pc]);
+
+  uint16_t acc = memRef[b] - memRef[a];
+  uint16_t newPc = 0;
+
+  memRef[b] = acc;
+  if (acc <= 0) {
+    newPc = c;
+  } else {
+    newPc = pc + 1;
+  }
+	   
+  return newPc;
 }
 
 void runSimulator(uint16_t *memRef, uint8_t pcInit) {
   printf("Simulator running...");
   uint8_t pc = pcInit;
+
+  // Compensate for the first backspace on printing PC value
+  printf("\n");
+
+  int count = 0;
   while (pc < MEM_SIZE) {
+    if (count == 8) {
+      return;
+    } else {
+      count++;
+    }
     pc = executeInstruction(memRef, pc);
+    printf("Current PC: %x", (int)pc);
   }
 
   printf("Simulation completed\n");
