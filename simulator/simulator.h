@@ -17,7 +17,7 @@ typedef enum {
 
 // Function to set the value of argument to an existing memory word
 /*inline */short setArg(arg_t arg, uint8_t argVal, uint16_t word) {
-  return (uint16_t)((word & ~((uint16_t)0b11111 << arg)) & ~(argVal << arg));
+  return (uint16_t)((word & ~((uint16_t)0b11111 << arg)) | (argVal << arg));
 }
 
 #endif

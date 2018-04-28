@@ -18,25 +18,23 @@ uint16_t *mem;
 // memory contents
 void initializeMem(uint16_t *memRef, char **memContents, int memContentsLen) {
   for (int i = 0; i < memContentsLen; i++) {
-    char **crap = (char**)malloc((ARG_SIZE+1) * sizeof(char));
+    char *crap;
     
     char *strArgA = (char*)malloc((ARG_SIZE+1) * sizeof(char*));
     char *strArgB = (char*)malloc((ARG_SIZE+1) * sizeof(char*));
     char *strArgC = (char*)malloc((ARG_SIZE+1) * sizeof(char*));
 
-
-    subString(memContents[i], 1, 5, strArgA);
-    subString(memContents[i], 6, 5, strArgB);
-    subString(memContents[i], 11, 5, strArgC);
+    strncpy(strArgA, memContents[i] + 1,  5);
+    strncpy(strArgB, memContents[i] + 6,  5);
+    strncpy(strArgC, memContents[i] + 11, 5);
     
-    memRef[i] = setArg(A, (int)strtol(strArgA, crap, 2), memRef[i]);
-    memRef[i] = setArg(B, (int)strtol(strArgB, crap, 2), memRef[i]);
-    memRef[i] = setArg(C, (int)strtol(strArgC, crap, 2), memRef[i]);
+    memRef[i] = setArg(A, (uint16_t)strtol(strArgA, &crap, 2), memRef[i]);
+    memRef[i] = setArg(B, (uint16_t)strtol(strArgB, &crap, 2), memRef[i]);
+    memRef[i] = setArg(C, (uint16_t)strtol(strArgC, &crap, 2), memRef[i]);
 
     free(strArgA);
     free(strArgB);
     free(strArgC);
-    free(crap);
   }
 }
 
@@ -52,7 +50,7 @@ void runSimulator(uint16_t *memRef, uint8_t pcInit) {
     pc = executeInstruction(memRef, pc);
   }
 
-  printf("Simulation completed");
+  printf("Simulation completed\n");
 }
 
 void printm(uint16_t *memRef) {
@@ -133,7 +131,8 @@ int main(int argc, char *argv[]) {
 
     // Give the control to the runSimulator method
     runSimulator(mem, (uint8_t)pc);
-    
+
+    printm(mem);
     // Close file buffer
     fclose(fp);
 
