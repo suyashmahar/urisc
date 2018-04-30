@@ -6,6 +6,14 @@
 #include "stdlib.h"
 #include "string.h"
 #include "utilities.h"
+
+/*
+  TODO
+  ----
+  * Correct the logic for creating memory array from the program
+  file where the first bit is being missed.
+  * Consider endianess of the processor
+ */
  
 // Declare constants for the machine specification
 const int ARG_SIZE = 5;    // bits
@@ -24,9 +32,9 @@ void initializeMem(uint16_t *memRef, char **memContents, int memContentsLen) {
     char *strArgB = (char*)malloc((ARG_SIZE+1) * sizeof(char*));
     char *strArgC = (char*)malloc((ARG_SIZE+1) * sizeof(char*));
 
-    strncpy(strArgA, memContents[i] + 1,  5);
+    strncpy(strArgC, memContents[i] + 1,  5);
     strncpy(strArgB, memContents[i] + 6,  5);
-    strncpy(strArgC, memContents[i] + 11, 5);
+    strncpy(strArgA, memContents[i] + 11, 5);
     
     memRef[i] = setArg(A, (uint16_t)strtol(strArgA, &crap, 2), memRef[i]);
     memRef[i] = setArg(B, (uint16_t)strtol(strArgB, &crap, 2), memRef[i]);
@@ -44,16 +52,16 @@ uint8_t executeInstruction(uint16_t *memRef, uint8_t pc) {
   uint16_t b = getArg(B, memRef[pc]);
   uint16_t c = getArg(C, memRef[pc]);
 
-  uint16_t acc = memRef[b] - memRef[a];
+  printf("Executing instruction with args: a: %i b: %i c: %i\n", (int)a,  (int)b, (int)c);
+  memRef[b] = memRef[b] - memRef[a];
   uint16_t newPc = 0;
 
-  memRef[b] = acc;
-  if (acc <= 0) {
+  if (memRef[b] <= 0) {
     newPc = c;
   } else {
     newPc = pc + 1;
   }
-	   
+  printf("Result: mem[b] = %i, pc = %i\n", memRef[b], newPc);
   return newPc;
 }
 
@@ -72,7 +80,7 @@ void runSimulator(uint16_t *memRef, uint8_t pcInit) {
       count++;
     }
     pc = executeInstruction(memRef, pc);
-    printf("Current PC: %x", (int)pc);
+    printf("%x \n", (int)pc);
   }
 
   printf("Simulation completed\n");

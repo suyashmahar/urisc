@@ -4,9 +4,9 @@
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef enum {
-	      A = 10,
+	      A = 0,
 	      B = 5,
-	      C = 0
+	      C = 10
 }  arg_t;
 
 // Function to get argument from mem word, makes life easier and
