@@ -16,7 +16,7 @@ LONG_OPTION_REG=r"-{1,2}[\w-]+"
 LABEL_REG=r"\.[\w_-]+"
 
 symTable = {}
-
+macroTable = {}
 def error(msg, fileName, lineNum):
     print "[%7s] %s:%s: %s" %("Error", fileName, lineNum, msg)
     #sys.exit()
@@ -24,12 +24,37 @@ def error(msg, fileName, lineNum):
 def first_pass(globalBuffer, file, address, files_to_assemble):
     with open(file) as f:
         lineNum = 1
+        macroLineCount = 0
+        lastMacroName = ""
         for line in f:
             addrIncr = 0
             # Remove all the extra white space
             splitLine = line.split()
+            # Check for macros
+            print splitLine
+            
+            if (splitLine[0] == ".macro"):
+                macroLineCount = 1
+                lastMacroName = splitLine[1] # Store macro name to add
+                                             # content later
+                macroTable[lastMacroName] = lastMacroName + ":" + splitLine[2]
+                if (splitLine[3] == "\\"):
+                    macroLineCount += 1
+                else:
+                    error("Macro error :-(", lineNum, file)
+            elif (macroLineCount > 0):
+                if ord(line[-2:-1]) == 92:
+                    macroTable[lastMacroName] = macroTable[lastMacroName] \
+                                              + "\n" + line[:-2]
+                    macroLineCount += 1
+                else:
+                    print "dfadf"
+                    print ord(line[-2:-1])
+                    macroTable[lastMacroName] = macroTable[lastMacroName] \
+                                              + "\n" + line
+                    macroLineCount = 0
             # Check for include statement
-            if (splitLine[0] == ".include"):
+            elif (splitLine[0] == ".include"):
                 if (splitLine[1][1:-1] in files_to_assemble):
                     globalBuffer = first_pass(globalBuffer,
                                               splitLine[1][1:-1],
@@ -64,8 +89,7 @@ def assemble_instruction(instr, symTable):
         return ""
     else:
         error("Unkown instruction '%s' :-(" % splitInstr[0], "", 0)
-    
-            
+        
 def preprocess(files_to_assemble):
     # Start with the first file
     return first_pass([], files_to_assemble[0], 0, files_to_assemble)
@@ -101,3 +125,9 @@ if '-g' in sys.argv[1:]:
     print "Symbol table:"
     for sym in symTable:
         print sym + ": " + str(symTable[sym])
+
+if '-m' in sys.argv[1:]:
+    print macroTable
+    print "Macro table:"
+    for macro in macroTable:
+        print "%s: %s" % (macro, macroTable[macro])
