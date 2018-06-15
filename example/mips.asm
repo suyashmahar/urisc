@@ -18,3 +18,16 @@ subleq 3 {_1_}
 zero 3 \
 subleq {_0_} 3 \
 mv 3 {_0_}
+
+; Add two numbers
+.macro addu 3 \
+neg {_2_}
+subleq {_2_} {_1_}
+mv {_1_} {_0_}
+
+; Sub two numbers
+.macro subu 3 \
+subleq {_2_} {_1_}
+mv {_1_} {_0_}
+
+
