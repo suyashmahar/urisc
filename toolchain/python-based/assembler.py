@@ -98,6 +98,11 @@ def first_pass(globalBuffer, file, files_to_assemble_map):
                     addrIncr = calc_macro_instr_count(line, symTable, macroTable)
     return globalBuffer
 
+def get_value(arg, symTable):
+    try:
+        return int(arg)
+    except ValueError:
+        return int(symTable[arg])
 
 def assemble_instruction(instr, symTable):
     global address
@@ -106,13 +111,13 @@ def assemble_instruction(instr, symTable):
     if splitInstr[0] == 'subleq':
 
         if len(splitInstr) == 4:  # Subleq with 3 parameters
-            result.append("0000{0:020b}{1:020b}{2:020b}".format(int(splitInstr[3]),
-                                                          int(splitInstr[2]),
-                                                          int(splitInstr[1])))
+            result.append("0000{0:020b}{1:020b}{2:020b}".format(get_value(splitInstr[3], symTable),
+                                                          get_value(splitInstr[2], symTable),
+                                                          get_value(splitInstr[1], symTable)))
         else:  # Subleq with 2 parameters
-            result.append("0000{0:020b}{1:020b}{2:020b}".format(int(address),
-                                                          int(splitInstr[2]),
-                                                          int(splitInstr[1])))
+            result.append("0000{0:020b}{1:020b}{2:020b}".format(get_value((address), symTable),
+                                                          get_value(splitInstr[2], symTable),
+                                                          get_value(splitInstr[1], symTable)))
         address += 1 # Increment address for the next instruction to be assembled
     elif macroTable[splitInstr[0]] != "":
         args = {}

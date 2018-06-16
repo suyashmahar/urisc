@@ -1,6 +1,7 @@
 .include "mips.asm"
-; adsfladfnlndafl
-jmp 1000
-mv 1 2
-mv 2 3
-mv 12 123
+
+zero 0
+zero 1
+.loop1
+jmp loop1
+addu 1 1 1
