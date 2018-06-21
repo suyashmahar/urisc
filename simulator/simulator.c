@@ -2,10 +2,6 @@
 // NOTE: This simulator is non-posix compliant
 
 #include "simulator.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
-#include "utilities.h"
 
 /*
   TODO
@@ -14,10 +10,6 @@
   file where the first bit is being missed.
   * Consider endianess of the processor
  */
- 
-// Declare constants for the machine specification
-const int ARG_SIZE = 5;    // bits
-const int MEM_SIZE = 32; // words
 
 // Represents the memory of the machine
 uint16_t *mem; 
@@ -93,9 +85,16 @@ void printm(uint16_t *memRef) {
   return;
 }
 
+void print_help() {
+  printf("URISC simulator v%s", VERSION_STRING);
+  printf("(c) 2018 Suyash Mahar.\n");
+  printf("\nUsage: usim [flags] [file]\n");
+}
+
 int main(int argc, char *argv[]) {
   if (argc < 2) {
-    printf("Not enough arguments passed, exiting...\n");
+    printf("Not enough arguments passed\n");
+    print_help();
     return 0;
   } else {
     FILE *fp;
