@@ -75,4 +75,15 @@ cabal.project.local~
 .ghc.environment.*
 #### DO NOT DELETE THIS LINE
 
+# C++ compiled headers
 *.gch
+
+# Binaries
+/bin
+*.out
+
+# Generated files
+*.asmx
+
+# CLion .idea files
+.idea
