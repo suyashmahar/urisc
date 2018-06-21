@@ -12,25 +12,25 @@
  */
 
 // Represents the memory of the machine
-uint16_t *mem; 
+uint64_t *mem; 
 
 // Initialize memory with a file containing binary representation of
 // memory contents
-void initializeMem(uint16_t *memRef, char **memContents, int memContentsLen) {
+void initializeMem(uint64_t *memRef, char **memContents, int memContentsLen) {
   for (int i = 0; i < memContentsLen; i++) {
     char *crap;
     
-    char *strArgA = (char*)malloc((ARG_SIZE+1) * sizeof(char*));
-    char *strArgB = (char*)malloc((ARG_SIZE+1) * sizeof(char*));
-    char *strArgC = (char*)malloc((ARG_SIZE+1) * sizeof(char*));
+    char *strArgA = (char*)malloc((ARG_SIZE+1) * sizeof(char));
+    char *strArgB = (char*)malloc((ARG_SIZE+1) * sizeof(char));
+    char *strArgC = (char*)malloc((ARG_SIZE+1) * sizeof(char));
 
-    strncpy(strArgC, memContents[i] + 1,  5);
-    strncpy(strArgB, memContents[i] + 6,  5);
-    strncpy(strArgA, memContents[i] + 11, 5);
+    strncpy(strArgC, memContents[i] + 4,  20);
+    strncpy(strArgB, memContents[i] + 24, 20);
+    strncpy(strArgA, memContents[i] + 44, 20);
     
-    memRef[i] = setArg(A, (uint16_t)strtol(strArgA, &crap, 2), memRef[i]);
-    memRef[i] = setArg(B, (uint16_t)strtol(strArgB, &crap, 2), memRef[i]);
-    memRef[i] = setArg(C, (uint16_t)strtol(strArgC, &crap, 2), memRef[i]);
+    memRef[i] = setArg(A, (uint64_t)strtol(strArgA, &crap, 2), memRef[i]);
+    memRef[i] = setArg(B, (uint64_t)strtol(strArgB, &crap, 2), memRef[i]);
+    memRef[i] = setArg(C, (uint64_t)strtol(strArgC, &crap, 2), memRef[i]);
 
     free(strArgA);
     free(strArgB);
@@ -39,26 +39,26 @@ void initializeMem(uint16_t *memRef, char **memContents, int memContentsLen) {
 }
 
 // Executes the instruction at pc and returns the new pc value
-uint8_t executeInstruction(uint16_t *memRef, uint8_t pc) {
-  uint16_t a = getArg(A, memRef[pc]);
-  uint16_t b = getArg(B, memRef[pc]);
-  uint16_t c = getArg(C, memRef[pc]);
+uint8_t executeInstruction(uint64_t *memRef, uint8_t pc) {
+  uint64_t a = getArg(A, memRef[pc]);
+  uint64_t b = getArg(B, memRef[pc]);
+  uint64_t c = getArg(C, memRef[pc]);
 
-  printf("Executing instruction with args: a: %i b: %i c: %i\n", (int)a,  (int)b, (int)c);
+  printf("Executing instruction with args: a: %llu b: %llu c: %llu\n", (uint64_t)a,  (uint64_t)b, (uint64_t)c);
   memRef[b] = memRef[b] - memRef[a];
-  uint16_t newPc = 0;
+  uint64_t newPc = 0;
 
   if (memRef[b] <= 0) {
     newPc = c;
   } else {
     newPc = pc + 1;
   }
-  printf("Result: mem[b] = %i, pc = %i\n", memRef[b], newPc);
+  printf("Result: mem[b] = %ul, pc = %i\n", memRef[b], newPc);
   return newPc;
 }
 
-void runSimulator(uint16_t *memRef, uint8_t pcInit) {
-  printf("Simulator running...");
+void runSimulator(uint64_t *memRef, uint8_t pcInit) {
+  printf("Simulator running...\n");
   uint8_t pc = pcInit;
 
   // Compensate for the first backspace on printing PC value
@@ -72,15 +72,18 @@ void runSimulator(uint16_t *memRef, uint8_t pcInit) {
       count++;
     }
     pc = executeInstruction(memRef, pc);
-    printf("%x \n", (int)pc);
   }
 
   printf("Simulation completed\n");
 }
 
-void printm(uint16_t *memRef) {
+void printm(uint64_t *memRef) {
+  printf("\nMemory contents:\n");
+  printf("%7s  %s\n", "Address", "Content");
   for (int i = 0; i < MEM_SIZE; i++) {
-    printf("0x%x : %d\n", i, (int)memRef[i]);
+    printf("%07x: ", i);
+    printBits(sizeof(uint64_t), (const void*)&memRef[i]);
+    printf("\n");
   }
   return;
 }
@@ -132,33 +135,33 @@ int main(int argc, char *argv[]) {
     // Intialize a 2D array for storing instructions as a list of
     // char*
     char **instructions;
-    instructions = (char**)malloc((lSize/17)*sizeof(char*));
-    for (int i = 0; i < lSize/17; i++) {
+    instructions = (char**)malloc((lSize/65)*sizeof(char*));
+    for (int i = 0; i < lSize/65; i++) {
       // malloc free space enough to store single instruction as
       // string
-      instructions[i] = (char*)malloc(17*sizeof(char*));
+      instructions[i] = (char*)malloc(65*sizeof(char*));
     }
         
     long instCount = 0;
-    while (instCount < lSize/17) {
-      subString(buffer, instCount*17, 17, instructions[instCount]);
+    while (instCount < lSize/65) {
+      subString(buffer, instCount*65, 65, instructions[instCount]);
       instCount++;
     }
 
     // Allocate and clear memory
-    mem = (uint16_t*) malloc(MEM_SIZE * sizeof(short));
+    mem = (uint64_t*) malloc(MEM_SIZE * sizeof(uint64_t));
     for (int i = 0; i < MEM_SIZE; i++) {
       mem[i] = 0;
     }
     
     // Initialize memory with the content
-    initializeMem(mem, instructions, (int)lSize/17);
+    initializeMem(mem, instructions, (int)lSize/65);
 
     printm(mem);
     
     // Ask user for program counter value
     int pc;
-    printf("Enter starting value of PC > ");
+    printf("\nEnter starting value of PC > ");
     scanf("%d", &pc);
 
     // Give the control to the runSimulator method
