@@ -80,6 +80,11 @@ def first_pass(globalBuffer, file, files_to_assemble_map):
                     error("Unable to find file: %s" % splitLine[1],
                           file, lineNum)
                     # Check for label declaration
+            elif (splitLine[0] == ".LONG"):
+                globalBuffer.append("@%s::%s" % (file, lineNum))
+                globalBuffer.append(".LONG " + splitLine[1])
+                addrIncr += 1
+                lineNum += 1
             elif re.search(LABEL_REG, " ".join(splitLine), re.M | re.I) is not None:
                 symTable[re.findall(r"[\w_-]+", splitLine[0],
                                     re.M | re.I)[0]] = address
@@ -111,14 +116,18 @@ def assemble_instruction(instr, symTable):
     if splitInstr[0] == 'subleq':
 
         if len(splitInstr) == 4:  # Subleq with 3 parameters
-            result.append("0000{0:020b}{1:020b}{2:020b}".format(get_value(splitInstr[3], symTable),
+            result.append("%5s" % str(address) + ":0000{0:020b}{1:020b}{2:020b}".format(get_value(splitInstr[3], symTable),
                                                           get_value(splitInstr[2], symTable),
                                                           get_value(splitInstr[1], symTable)))
         else:  # Subleq with 2 parameters
-            result.append("0000{0:020b}{1:020b}{2:020b}".format(get_value((address), symTable),
+            result.append("%5s" % str(address) + ":0000{0:020b}{1:020b}{2:020b}".format(get_value((address), symTable),
                                                           get_value(splitInstr[2], symTable),
                                                           get_value(splitInstr[1], symTable)))
         address += 1 # Increment address for the next instruction to be assembled
+    # Storing a LONG
+    elif splitInstr[0] == "LONG":
+        result.append("%5s" % str(address) + ":{0:064b}".format(int(splitInstr[1])))
+        address += 1
     elif macroTable[splitInstr[0]] != "":
         args = {}
         count = 0
@@ -153,7 +162,7 @@ def second_pass(globalBuffer, symTable):
         else:
             assembledCode.append(assemble_instruction(curLine,
                                                       symTable))
-            address = address + 1
+###            address = address + 1
     return assembledCode
 
 
