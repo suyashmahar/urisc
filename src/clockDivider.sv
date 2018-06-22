@@ -12,17 +12,19 @@ module clockDivider
       output reg [DIVIDE_BY - 1:0] clkOut
       );
    
-   reg 		 clkState;
-   int 		 counter;
+   reg 				   shiftReg [DIVIDE_BY-1:0];
+
+   assign clkOut = shiftReg;
    
    initial begin
-       clkState = 1'b0;
-       clkOut = {DIVIDE_BY{1'b0}} | 1'b1;
+       shiftReg = {DIVIDE_BY{1'b0},1'b1};
    end
 
-   // Shifts the content of 
-   always @(posedge clkIn) begin
-       clkOut <= {{clkOut[DIVIDE_BY - 2:0]},{clkOut[DIVIDE_BY-1]}};
+   // Shift a register containing a single 1 to generate n clocks,
+   // where n is the width of the shift registers
+   always @(posedge clk) begin
+       shiftReg <= {shiftReg[0], shiftReg[DIVIDE_BY-1:1]};
    end
+   
 endmodule // clockDivider
 

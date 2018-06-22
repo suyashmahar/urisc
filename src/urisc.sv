@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-import gc::*;
+`include "urisc.svh"
 
 module top(clk, led);
    input clk;
@@ -10,7 +10,7 @@ module top(clk, led);
    // Allowing the processor to use dual port memory for the instruction
    // subleq a, b, c
    wire [2:0] 			clkDivided;
-   clockDivider clkdiv1(.clkIn(clk), .clkOut(clkDivided));
+   clockDivider #(.DIVIDE_BY(3)) clkdiv1(.clkIn(clk), .clkOut(clkDivided));
 
    // ir = instruction register
    // pc = program counter
@@ -50,9 +50,10 @@ module top(clk, led);
 
    // Extract a, b and c from the ir
    wire [gc::WORD_SIZE - 1:0] a, b, c;
-   assign a = ir[4:0];
-   assign b = ir[9:5];
-   assign c = ir[14:10];
+
+   assign a = ir[utils::arg_up_bound(gc::A) : utils::arg_low_bound(gc::A)];
+   assign b = ir[utils::arg_up_bound(gc::B) : utils::arg_low_bound(gc::B)];
+   assign c = ir[utils::arg_up_bound(gc::C) : utils::arg_low_bound(gc::C)];
    
    /* Performs the operation: 
           ir <- mem[pc]
