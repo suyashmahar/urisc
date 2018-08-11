@@ -167,10 +167,12 @@ def second_pass(globalBuffer, symTable):
     return assembledCode
 
 
+if len(sys.argv) < 2:
+    print "No input file supplied"
+    sys.exit()
+
 files_to_assemble = list(filter(lambda x: None ==
-                                          re.search(LONG_OPTION_REG,
-                                                    x, re.M | re.I),
-                                sys.argv[1:]))
+                                re.search(LONG_OPTION_REG, x, re.M | re.I), sys.argv[1:]))
 files_to_assemble_map = {}
 for file in files_to_assemble:
     files_to_assemble_map[os.path.split(file)[1]] = file
@@ -193,14 +195,45 @@ if '-m' in sys.argv[1:]:
     for macro in macroTable:
         print "%s: %s" % (macro, macroTable[macro])
 
-
-def printAssembledOuput(assembledOutput):
+""" Returns single linear list of elements from a list of nested lists """
+linearAssembledOutput = []
+def linearizeAssembledOuput(assembledOutput):
+    global linearAssembledOutput
     for element in assembledOutput:
         if isinstance(element, basestring):
+            linearAssembledOutput.append(element)
+        else:
+            linearizeAssembledOuput(element)
+
+def printLinearAssemOutput(linAssembledOutput, noAdd):
+    for element in linearAssembledOutput:
+        if noAdd == False:
             print element
         else:
-            printAssembledOuput(element)
+            print element.split(":")[1]
 
+linearizeAssembledOuput(assembledOutput)
 
 if '-p' in sys.argv[1:]:
-    printAssembledOuput(assembledOutput)
+    printLinearAssemOutput(linearAssembledOutput, False)
+
+if '-p-no-add' in sys.argv[1:]:
+    printLinearAssemOutput(linearAssembledOutput, True)
+
+def splitNumber (num):
+    lst = []
+    while num > 0:
+        lst.append(num & 0xFF)
+        num >>= 8
+    return lst[::-1]
+
+if '-o' in sys.argv[1:]:
+    outputFilenameIndex = sys.argv.index('-o') + 1
+    if outputFilenameIndex >= len(sys.argv) or sys.argv[outputFilenameIndex][0] == "-":
+        print "Option '-o' requires an output filename."
+        sys.exit()
+    else:
+        outputFilename = sys.argv[outputFilenameIndex]
+        with open(outputFilename, 'wb+') as f:
+            for element in linearAssembledOutput:
+                f.write(bytearray(splitNumber(int(element.split(":")[1], 2))))
