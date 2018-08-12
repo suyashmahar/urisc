@@ -220,11 +220,14 @@ if '-p' in sys.argv[1:]:
 if '-p-no-add' in sys.argv[1:]:
     printLinearAssemOutput(linearAssembledOutput, True)
 
+# Hard coded for 64 bit ints
 def splitNumber (num):
     lst = []
-    while num > 0:
+    count = 0
+    while count < 8:
         lst.append(num & 0xFF)
         num >>= 8
+        count += 1
     return lst[::-1]
 
 if '-o' in sys.argv[1:]:
