@@ -28,9 +28,9 @@ def cmdline(command):
     return process.communicate()[0]
 
 def main():
-    ASSEMBLER_LOC = "../../toolchain/python-based/assembler.py"
+    ASSEMBLER_LOC = "toolchain/python-based/assembler.py"
     ASSEMBLER_NO_ADD_PRINT = "-p-no-add"
-    ASSEMBLER_INPUT_FILES = ["sample.asm", "mips.asm"]
+    ASSEMBLER_INPUT_FILES = ["tests/toolchain/sample.asm", "tests/toolchain/mips.asm"]
 
     assembler_arg = [ASSEMBLER_NO_ADD_PRINT] + ASSEMBLER_INPUT_FILES
 #    print "Starting test: " + ASSEMBLER_LOC + " " + assembler_arg
