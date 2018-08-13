@@ -52,6 +52,12 @@ def first_pass(globalBuffer, file, files_to_assemble_map):
             # Check for macros
             elif line.strip() == "":
                 lineNum += 1
+            elif line.strip().split()[0] == ".fill":
+                for i in range(0, int(line.strip().split()[1])):
+                    globalBuffer.append("@%s::%s" % (file, lineNum))
+                    globalBuffer.append(".LONG " + "0")
+                    addrIncr += 1
+                    lineNum += 1
             elif (splitLine[0] == ".macro"):
                 macroLineCount = 1
                 lastMacroName = splitLine[1]  # Store macro name to add
