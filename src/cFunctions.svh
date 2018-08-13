@@ -3,7 +3,6 @@
 
  // Macro to define c like assertion function
  `define _assert_(val, str) \
-  if (!``val``) begin \
-      $error("%s", ``str``); \
-  end
+  if (!``val``) \
+      $error("%s", ``str``);
 `endif
