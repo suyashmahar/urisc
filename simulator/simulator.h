@@ -18,7 +18,7 @@ typedef enum {
 
 // Declare constants for the machine specification
 const int ARG_SIZE = 20;    // bits
-const int MEM_SIZE = 32; // words
+const int MEM_SIZE = 36; // words
 
 // Other simulator related constants
 const char* VERSION_STRING = "0.1b";

@@ -32,9 +32,9 @@ void initializeMem(uint64_t *memRef, char **memContents, int memContentsLen) {
     memRef[i] = setArg(B, (uint64_t)strtol(strArgB, &crap, 2), memRef[i]);
     memRef[i] = setArg(C, (uint64_t)strtol(strArgC, &crap, 2), memRef[i]);
 
-    free(strArgA);
+    /*free(strArgA);
     free(strArgB);
-    free(strArgC);
+    free(strArgC);*/
   }
 }
 
@@ -44,7 +44,7 @@ uint8_t executeInstruction(uint64_t *memRef, uint8_t pc) {
   uint64_t b = getArg(B, memRef[pc]);
   uint64_t c = getArg(C, memRef[pc]);
 
-  printf("Executing instruction with args: a: %llu b: %llu c: %llu\n", (uint64_t)a,  (uint64_t)b, (uint64_t)c);
+  printf("Executing instruction with at %llu args: a: %llu b: %llu c: %llu\n", (uint64_t)pc, (uint64_t)a,  (uint64_t)b, (uint64_t)c);
   memRef[b] = memRef[b] - memRef[a];
   uint64_t newPc = 0;
 
@@ -81,7 +81,7 @@ void printm(uint64_t *memRef) {
   printf("\nMemory contents:\n");
   printf("%7s  %s\n", "Address", "Content");
   for (int i = 0; i < MEM_SIZE; i++) {
-    printf("%07x: ", i);
+    printf("%07d: ", i);
     printBits(sizeof(uint64_t), (const void*)&memRef[i]);
     printf("\n");
   }
