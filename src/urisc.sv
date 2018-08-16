@@ -23,11 +23,7 @@ module top(clk, led);
    reg [gc::WORD_SIZE - 1:0] 	memDataIn1, memDataIn2;
    wire [gc::WORD_SIZE - 1:0] 	memResult1, memResult2;
    
-   memory 
-     #(
-       .WORD_SIZE(gc::WORD_SIZE),
-       .MEM_SIZE(gc::MEM_SIZE)
-       ) pMem (
+   memory pMem (
 	       .clk(clk),
 	       
 	       .add1(memAdd1),
@@ -44,24 +40,24 @@ module top(clk, led);
    initial begin
        memWrite1 = 1'b0;
        memWrite2 = 1'b0;
-       
+       pc = 0;
        $display("Using WORD_SIZE = %d", gc::WORD_SIZE);
    end
 
    // Extract a, b and c from the ir
    wire [gc::WORD_SIZE - 1:0] a, b, c;
 
-   assign a = ir[utils::arg_up_bound(gc::A) : utils::arg_low_bound(gc::A)];
-   assign b = ir[utils::arg_up_bound(gc::B) : utils::arg_low_bound(gc::B)];
-   assign c = ir[utils::arg_up_bound(gc::C) : utils::arg_low_bound(gc::C)];
-   
+   assign a = ir[gc::A_UB : gc::A_LB];
+   assign b = ir[gc::B_UB : gc::B_LB];
+   assign c = ir[gc::C_UB : gc::C_LB]; 
+  
    /* Performs the operation: 
           ir <- mem[pc]
           acc <- mem[b] - mem[a]
           mem[b] <- acc
           if (acc <= 0) pc <- c */
    reg [gc::WORD_SIZE - 1:0]  acc;
-   
+
    always @(posedge clk) begin
        case (clkDivided) 
 	 3'b001: begin

@@ -2,23 +2,36 @@
 
 module memory
   #(
-    parameter WORD_SIZE = 16,
-    parameter MEM_SIZE = 32
+    parameter MEM_FILE = "/home/suyash/git/urisc/example/sample.out"
     )(
       input 			   clk,
       
-      input [WORD_SIZE - 1:0] 	   add1,
-      input [WORD_SIZE - 1:0] 	   dataIn1,
+      input [gc::WORD_SIZE - 1:0] 	   add1,
+      input [gc::WORD_SIZE - 1:0] 	   dataIn1,
       input 			   write1,
-      output reg [WORD_SIZE - 1:0] dataOut1,
+      output reg [gc::WORD_SIZE - 1:0] dataOut1,
       
-      input [WORD_SIZE - 1:0] 	   add2,
-      input [WORD_SIZE - 1:0] 	   dataIn2,
+      input [gc::WORD_SIZE - 1:0] 	   add2,
+      input [gc::WORD_SIZE - 1:0] 	   dataIn2,
       input 			   write2,
-      output reg [WORD_SIZE - 1:0] dataOut2
+      output reg [gc::WORD_SIZE - 1:0] dataOut2
       );
    
-   reg [MEM_SIZE - 1:0] 	   mem[WORD_SIZE-1:0];
+   reg [gc::WORD_SIZE-1:0] mem [gc::MEM_SIZE - 1:0];
+
+   integer 			   fileID;
+   reg [gc::WORD_SIZE-1:0] word;
+   integer r;
+    
+   initial begin
+       fileID = $fopen(MEM_FILE,"rb");
+              
+       for (r = 0; r < gc::MEM_SIZE; r = r+1) begin
+         $fread(word,fileID);
+         mem[r] = word;
+         $display("%h", mem[r]);
+       end
+   end
    
    always @(posedge clk) begin
        if (write1) begin
