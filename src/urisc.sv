@@ -2,8 +2,8 @@
 
 `include "urisc.svh"
 
-module top(clk, led);
-   input clk;
+module top(clk, rst, led);
+   input clk, rst;
    output [gc::WORD_SIZE - 1:0] led;
    
    localparam FIRST = 2'b00, SECOND = 2'b01, THIRD = 2'b10;
@@ -68,7 +68,7 @@ module top(clk, led);
     mem[b] <- acc
     if (acc <= 0) pc <- c */
    reg [gc::WORD_SIZE - 1:0]  acc;
-
+   
    always @(posedge clk) begin
        case (counter) 
 	 FIRST: begin
@@ -101,6 +101,22 @@ module top(clk, led);
 	     end
 	 end
        endcase // case THIRD
-       counter = #1 (counter+1)%3;
+       
+       if (rst) begin
+           
+           memWrite1 = 1'b0;
+           memWrite2 = 1'b0;
+           
+           memAdd1 = 0;
+           memAdd2 = 0;
+           
+           pc = 11;
+           counter = 0;
+           
+           $display("Processor reset");
+       end else begin
+           counter = #1 (counter+1)%3;
+       end
+       
    end // always @ (posedge clk1)
 endmodule // top
