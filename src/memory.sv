@@ -1,4 +1,5 @@
 `timescale 1ns/1ps
+//`define USE_MEM
 
 module memory
   #(
@@ -22,7 +23,8 @@ module memory
    integer 			   fileID;
    reg [gc::WORD_SIZE-1:0] word;
    integer r;
-    
+
+`ifndef USE_MEM
    initial begin
        fileID = $fopen(MEM_FILE,"rb");
               
@@ -32,8 +34,10 @@ module memory
          $display("%h", mem[r]);
        end
    end
-   
+`endif
+
    always @(posedge clk) begin
+   #1
        if (write1) begin
 	   mem[add1] <= dataIn1;
        end else begin
@@ -42,6 +46,7 @@ module memory
    end
    
    always @(posedge clk) begin
+   #1
        if (write2) begin
 	   mem[add2] <= dataIn2;
        end else begin
