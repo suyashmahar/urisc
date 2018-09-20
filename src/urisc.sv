@@ -2,31 +2,33 @@
 
 `include "urisc.svh"
 
-module top(clk, rst, led);
+module urisc(clk, rst, ioBus, ioBusDirection, ioAddress);
    input clk, rst;
-   output [gc::WORD_SIZE - 1:0] led;
+   inout [gc::WORD_SIZE - 1:0] ioBus; // For transferring data in and out of the processor memory, uses cycle stealing
+   input [gc::WORD_SIZE - 1:0] ioAddress;
+   input 		       ioBusDirection;
    
    localparam FIRST = 2'b00, SECOND = 2'b01, THIRD = 2'b10;
 
    // Gets 3 120deg phase shifted f/6 freq clocks from input clock
    // Allowing the processor to use dual port memory for the instruction
    // subleq a, b, c
-   wire [2:0] 			clkDivided;
+   wire [2:0] 		       clkDivided;
    clockDivider #(.DIVIDE_BY(3)) clkdiv1(.clkIn(clk), .clkOut(clkDivided));
 
    // ir = instruction register
    // pc = program counter
-   reg [gc::WORD_SIZE - 1:0] 	ir;
-   reg [gc::WORD_SIZE - 1:0] 	pc;
+   reg [gc::WORD_SIZE - 1:0]   ir;
+   reg [gc::WORD_SIZE - 1:0]   pc;
 
    // Instantiate and connect a dual port memory ports
-   reg [gc::WORD_SIZE - 1:0] 	memAdd1, memAdd2;
-   reg 				memWrite1, memWrite2;
-   reg [gc::WORD_SIZE - 1:0] 	memDataIn1, memDataIn2;
-   wire [gc::WORD_SIZE - 1:0] 	memResult1, memResult2;
+   reg [gc::WORD_SIZE - 1:0]   memAdd1, memAdd2;
+   reg 			       memWrite1, memWrite2;
+   reg [gc::WORD_SIZE - 1:0]   memDataIn1, memDataIn2;
+   wire [gc::WORD_SIZE - 1:0]  memResult1, memResult2;
    
-   int 				counter;
-   assign led = pc;
+   int 			       counter;
+   assign ioBus = (ioBusDirection == gc::IO_OUT) ? pc : {gc::WORD_SIZE{1'bz}};
    
    memory pMem (
 		.clk(~clk),

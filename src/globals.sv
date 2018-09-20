@@ -4,6 +4,7 @@
 
 package gc; // Global Constants
    parameter WORD_SIZE = 64;
+   parameter IO_COUNT = 2;
    parameter MEM_SIZE = 36;
    
    parameter ARG_A_SIZE = 20;
@@ -29,6 +30,8 @@ package gc; // Global Constants
    typedef enum {
        A, B, C
    } ARGS;
-   
+
+   // ioBus direction, always wrt memory
+   parameter IO_IN = 1'b0, IO_OUT = 1'b1;
 endpackage : gc// globals
    
