@@ -27,9 +27,6 @@ module vgaWrapper(clk, ioClk, memDataRead, memReadAdd, hSync, vSync, red, green,
    
    reg [ASCII_SIZE-1:0] charBuffer [CHARS_VERT-1:0][CHARS_HORZ-1:0];
    
-   output wire hSync, vSync;
-   output wire [3-1:0] red, green, blue;
-
    integer 	       charBufferCounter = 0;
    always @(posedge ioClk) begin
        charBufferCounter += charsPerWord;
@@ -45,7 +42,7 @@ module vgaWrapper(clk, ioClk, memDataRead, memReadAdd, hSync, vSync, red, green,
 
    // charBufferCounter points to the virtual memory address used by the VGA module, this address
    // will then be converted to the actual address where the char buffer in the memory is
-   assign memReadAdd = charBufferCounter; // TODO: signed to unsigned conversion
+   assign memReadAdd = charBufferCounter + gc::VGA_MEM_OFFSET; // TODO: signed to unsigned conversion
    
    draw draw_inst 
      (

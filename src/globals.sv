@@ -6,7 +6,8 @@ package gc; // Global Constants
    parameter WORD_SIZE = 64;
    parameter IO_COUNT = 2;
    parameter MEM_SIZE = 36;
-   
+   parameter ASCII_SIZE = 8;
+      
    parameter ARG_A_SIZE = 20;
    parameter ARG_B_SIZE = 20;
    parameter ARG_C_SIZE = 20;
@@ -33,5 +34,13 @@ package gc; // Global Constants
 
    // ioBus direction, always wrt memory
    parameter IO_IN = 1'b0, IO_OUT = 1'b1;
+
+   // Index for IO arbiter
+   parameter VGA_I = 1'b0, PS2_I = 1'b1;
+   
+   // Offsets for virtual to physical memory conversions
+   parameter VGA_MEM_OFFSET = 64'h81;
+   parameter KEYBOARD_ADD = 64'h00; // TODO: Fix this
+      
 endpackage : gc// globals
    

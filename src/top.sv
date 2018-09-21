@@ -1,5 +1,5 @@
 module top(clk, rst, hSync, vSync, red, green, blue);
-   localparam VGA_I = 0;	// Position of VGA among I/O devices
+   localparam VGA_I = 0, PS2_I = 1'b1;	// Position of VGA among I/O devices
    
    input clk;			// FPGA on-board clock
    input rst;			// FPGA on-board reset
@@ -36,11 +36,20 @@ module top(clk, rst, hSync, vSync, red, green, blue);
       .green(green),
       .blue(blue)
       );
+
+   ps2Wrapper ps2Wrapper_inst
+     (
+      .clk(clk),
+      .kbdClk(kbdClk),
+      .kbdDatain(kbdDatain),
+      .dataOut(dataOutArr[PS2_I]),
+      .addOut(addressInArr[PS2_I])
+      );
    
    ioArbiter ioArbiter_inst
      (
       .clk(clk), 
-      
+       
       .addressInArr(addressInArr),
       .dataInArr(dataInArr),
       .dataOutArr(dataOutArr),
@@ -55,7 +64,7 @@ module top(clk, rst, hSync, vSync, red, green, blue);
      (
       .clk(clk), 
       .rst(rst), 
-      
+       
       .ioBus(ioBus), 
       .ioBusDirection(ioBusDirection), 
       .ioAddress(ioAddress)
