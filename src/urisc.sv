@@ -2,11 +2,13 @@
 
 `include "urisc.svh"
 
-module urisc(clk, rst, ioBus, ioBusDirection, ioAddress);
+module urisc(clk, rst, ioClk, ioBus, ioBusDirection, ioAddress);
    input clk, rst;
    inout [gc::WORD_SIZE - 1:0] ioBus; // For transferring data in and out of the processor memory, uses cycle stealing
    input [gc::WORD_SIZE - 1:0] ioAddress;
    input 		       ioBusDirection;
+
+   output reg 		       ioClk;
    
    localparam FIRST = 2'b00, SECOND = 2'b01, THIRD = 2'b10;
 
@@ -53,7 +55,8 @@ module urisc(clk, rst, ioBus, ioBusDirection, ioAddress);
        
        pc = 11;
        counter = 0;
-       
+
+       ioClk = 0;
        $display("Using WORD_SIZE = %d", gc::WORD_SIZE);
    end
 
@@ -75,25 +78,33 @@ module urisc(clk, rst, ioBus, ioBusDirection, ioAddress);
        case (counter) 
 	 FIRST: begin
 	     memAdd1 = pc;
+	     memWrite1 = gc::IO_OUT;
 
-	     memWrite1 = 1'b0;
-	     memWrite2 = 1'b0;
+	     // IO stuff
+	     ioClk = 1'b1;
+	     
+	     memAdd2 = ioAddress;
+	     memWrite2 = ioBusDirection;
+	     memDataIn2 = (ioBusDirection == gc::IO_IN) ? ioBus : {gc::WORD_SIZE{1'bz}};
+
+	     ioBus = (ioBusDirection == gc::IO_OUT) ? memResult2 : {gc::WORD_SIZE{1'bz}};
 	 end SECOND: begin
 	     ir = memResult1;
+	     ioClk = 1'b1;
 	     
 	     memAdd1 = b;
 	     memAdd2 = a;
 	     
-	     memWrite1 = 1'b0;
-	     memWrite2 = 1'b0;
+	     memWrite1 = gc::IO_OUT;
+	     memWrite2 = gC::IO_OUT;
+
+	     // IO stuff
+	     ioBus = (ioBusDirection == gc::IO_OUT) ? memResult2 : {gc::WORD_SIZE{1'bz}};
 	 end THIRD: begin
 	     acc = memResult1 - memResult2;
 	     
 	     memAdd1 = b;
-	     
-	     memWrite1 = 1'b1;
-	     memWrite2 = 1'b0;
-	     
+	     memWrite1 = gc::IO_IN;
 	     memDataIn1 = acc;
 
 	     if (memResult1 <= 0) begin
@@ -101,13 +112,18 @@ module urisc(clk, rst, ioBus, ioBusDirection, ioAddress);
 	     end else begin
 		 pc += 1;
 	     end
+
+	     // IO Stuff
+	     memAdd2 = ioAddress;
+	     memWrite2 = ioBusDirection;
+	     memDataIn2 = (ioBusDirection == gc::IO_IN) ? ioBus : {gc::WORD_SIZE{1'bz}};
 	 end
        endcase // case THIRD
        
        if (rst) begin
            
-           memWrite1 = 1'b0;
-           memWrite2 = 1'b0;
+           memWrite1 = gc::IO_OUT;
+           memWrite2 = gc::IO_OUT;
            
            memAdd1 = 0;
            memAdd2 = 0;
@@ -121,4 +137,9 @@ module urisc(clk, rst, ioBus, ioBusDirection, ioAddress);
        end
        
    end // always @ (posedge clk1)
+
+   // resets the ioClk signal
+   always @(negedge clk) begin
+       ioClk = 1'b0;
+   end
 endmodule // top

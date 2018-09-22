@@ -33,7 +33,7 @@ package gc; // Global Constants
    } ARGS;
 
    // ioBus direction, always wrt memory
-   parameter IO_IN = 1'b0, IO_OUT = 1'b1;
+   parameter IO_IN = 1'b1, IO_OUT = 1'b0;
 
    // Index for IO arbiter
    parameter VGA_I = 1'b0, PS2_I = 1'b1;
