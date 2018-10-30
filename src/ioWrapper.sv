@@ -27,22 +27,28 @@ module vgaWrapper(clk, ioClk, memDataRead, memReadAdd, hSync, vSync, red, green,
    
    reg [ASCII_SIZE-1:0] charBuffer [CHARS_VERT-1:0][CHARS_HORZ-1:0];
    
-   integer 	       charBufferCounter = 0;
+   integer 		charBufferCounterX = 0, charBufferCounterY = 0;
    always @(posedge ioClk) begin
-       charBufferCounter += charsPerWord;
-       if (charBufferCounter == CHARS_VERT*CHARS_HORZ-1) begin
-	   charBufferCounter = 0;
+       charBufferCounterX += charsPerWord;
+       // Move the io window accross the whole screen
+       if (charBufferCounterX == CHARS_HORZ-1) begin
+	   charBufferCounterX = 0;
+	   charBufferCounterY++;
+	   if (charBufferCounterY == CHARS_VERT-1) begin
+	       charBufferCounterY = 0;
+	   end
        end
+       
        // Todo: Move this to generate statement
-       charBuffer[charBufferCounter] = memDataRead[charsPerWord*4-1:charsPerWord*3-1];
-       charBuffer[charBufferCounter+1] = memDataRead[charsPerWord*3-1:charsPerWord*2-1];
-       charBuffer[charBufferCounter+2] = memDataRead[charsPerWord*2-1:charsPerWord-1];
-       charBuffer[charBufferCounter+3] = memDataRead[charsPerWord-1:0];
+       charBuffer[charBufferCounterY][charBufferCounterX]   = { << {memDataRead[charsPerWord*4-1:charsPerWord*3-1]}};
+       charBuffer[charBufferCounterY][charBufferCounterX+1] = { << {memDataRead[charsPerWord*3-1:charsPerWord*2-1]}};
+       charBuffer[charBufferCounterY][charBufferCounterX+2] = { << {memDataRead[charsPerWord*2-1:charsPerWord-1]}};
+       charBuffer[charBufferCounterY][charBufferCounterX+3] = { << {memDataRead[charsPerWord-1:0]}};
    end
 
    // charBufferCounter points to the virtual memory address used by the VGA module, this address
    // will then be converted to the actual address where the char buffer in the memory is
-   assign memReadAdd = charBufferCounter + gc::VGA_MEM_OFFSET; // TODO: signed to unsigned conversion
+   assign memReadAdd = charBufferCounterX + charBufferCounterY*CHARS_HORZ + gc::VGA_MEM_OFFSET; // TODO: signed to unsigned conversion
    
    draw draw_inst 
      (

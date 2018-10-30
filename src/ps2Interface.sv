@@ -1,9 +1,11 @@
-module ps2Interface (kbdClk, kbdDataIn, led[8-1:0], error, keyValid);
+import gc::*;
+
+module ps2Interface (kbdClk, kbdDataIn, led[gc::WORD_SIZE-1:0], error, keyValid);
    parameter FIFO_SIZE = 32;
    
    input kbdClk;
    input kbdDataIn;
-   output [8-1:0] led;
+   output [gc::WORD_SIZE-1:0] led;
    output reg 	  error;
    output wire 	  keyValid;
       

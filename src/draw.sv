@@ -21,7 +21,7 @@ module draw(clk_25M, charBuffer, hSync, vSync, red, green, blue);
    initial begin
        {{red}, {green}, {blue}} = 12'h000;
        // Initialise font ROM
-       $readmemb("/home/suyash/vgaCharRom.bin", fontRom);
+       $readmemb("/home/suyash/git/urisc/src/vgaCharRom.bin", fontRom);
    end
 
    function getXYPixel;
