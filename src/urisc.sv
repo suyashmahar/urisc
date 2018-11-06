@@ -3,14 +3,17 @@
 `include "urisc.svh"
 import gc::*;
 
-module urisc(clk, rst, ioClk, ioBus, ioBusDirection, ioAddress);
+module urisc(clk, rst, ioClk, ioBus, ioBusDirection, ioAddress, led);
    input clk, rst;
    inout [gc::WORD_SIZE - 1:0] ioBus; // For transferring data in and out of the processor memory, uses cycle stealing
    input [gc::WORD_SIZE - 1:0] ioAddress;
    input 		       ioBusDirection;
 
-   output reg 		       ioClk;
+   output wire 		       ioClk;
+   output wire [15-1:0]     led;
    
+   assign led[15-1:0] = pc[15-1:0];
+   //assign led[16-1] = pc == 0;
    localparam FIRST = 2'b00, SECOND = 2'b01, THIRD = 2'b10;
 
    // Gets 3 120deg phase shifted f/6 freq clocks from input clock
@@ -21,7 +24,7 @@ module urisc(clk, rst, ioClk, ioBus, ioBusDirection, ioAddress);
 
    // ir = instruction register
    // pc = program counter
-   reg [gc::WORD_SIZE - 1:0]   ir;
+   reg [gc::WORD_SIZE - 1:0]   ir, last_ir;
    reg [gc::WORD_SIZE - 1:0]   pc;
 
    // Instantiate and connect a dual port memory ports
@@ -33,7 +36,7 @@ module urisc(clk, rst, ioClk, ioBus, ioBusDirection, ioAddress);
    int 			       counter;
    assign ioBus = (ioBusDirection == gc::IO_OUT) ? pc : {gc::WORD_SIZE{1'bz}};
    
-   memory pMem (
+   (* dont_touch = "true" *) (* keep_hierarchy = "yes" *) memory pMem (
 		.clk(~clk),
        
 		.add1(memAdd1),
@@ -57,7 +60,6 @@ module urisc(clk, rst, ioClk, ioBus, ioBusDirection, ioAddress);
        pc = 11;
        counter = 0;
 
-       ioClk = 0;
        $display("Using WORD_SIZE = %d", gc::WORD_SIZE);
    end
 
@@ -76,23 +78,25 @@ module urisc(clk, rst, ioClk, ioBus, ioBusDirection, ioAddress);
    reg [gc::WORD_SIZE - 1:0]  acc;
    // Set the ioBus for second and third cycle
    assign ioBus = (ioBusDirection == gc::IO_OUT) ? memResult2 : {gc::WORD_SIZE{1'bz}};
-
-   always @(posedge clk or negedge clk) begin
-       if (clk == 1) begin // for posedge
+   
+   assign ioClk = ((counter == FIRST) & (counter == SECOND) & clk);
+   
+   always @(posedge clk) begin
 	   case (counter) 
 	     FIRST: begin
 		 memAdd1 = pc;
 		 memWrite1 = gc::IO_OUT;
 		 
 		 // IO stuff
-		 ioClk = 1'b1;
+		 //ioClk = 1'b1;
 		 
 		 memAdd2 = ioAddress;
 		 memWrite2 = ioBusDirection;
 		 memDataIn2 = (ioBusDirection == gc::IO_IN) ? ioBus : {gc::WORD_SIZE{1'bz}};
 	     end SECOND: begin
+	     last_ir = ir;
 		 ir = memResult1;
-		 ioClk = 1'b1;
+		 //ioClk = 1'b1;
 		 
 		 memAdd1 = b;
 		 memAdd2 = a;
@@ -108,8 +112,8 @@ module urisc(clk, rst, ioClk, ioBus, ioBusDirection, ioAddress);
 		 memWrite1 = gc::IO_IN;
 		 memDataIn1 = acc;
 
-		 if (memResult1 <= 0) begin
-		     pc = ir[gc::C_UB : gc::C_LB];
+		 if (acc <= 0) begin
+		     pc = ir[gc::C_UB : gc::C_LB];//last_ir[gc::C_UB : gc::C_LB];
 		 end else begin
 		     pc += 1;
 		 end
@@ -124,21 +128,18 @@ module urisc(clk, rst, ioClk, ioBus, ioBusDirection, ioAddress);
 	   if (rst) begin
                
                memWrite1 = gc::IO_OUT;
-               memWrite2 = gc::IO_OUT;
-           
-               memAdd1 = 0;
-               memAdd2 = 0;
-               
+               memWrite2 = ioBusDirection;
+            
                pc = 11;
-               counter = 0;
+               
+               memAdd1 = pc;
+               memAdd2 = ioAddress;
+               
+               counter = SECOND;
                
                $display("Processor reset");
 	   end else begin
            counter = #1 (counter+1)%3;
 	   end
-       end // if (clk == 1)
-       else begin // for negedge
-	   ioClk = 1'b0;
-       end // else: !if(clk == 1)
    end // always @ (posedge clk1)
 endmodule // top

@@ -5,7 +5,7 @@
 package gc; // Global Constants
    parameter WORD_SIZE = 64;
    parameter IO_COUNT = 2;
-   parameter MEM_SIZE = 36;
+   parameter MEM_SIZE = 116;
    parameter ASCII_SIZE = 8;
       
    parameter ARG_A_SIZE = 20;

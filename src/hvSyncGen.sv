@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-`define DEBUG
+//`define DEBUG
 module hvSyncGen(clk_25M, hSync, vSync, draw, hPos, vPos);
    input clk_25M;   
    output hSync, vSync, draw;

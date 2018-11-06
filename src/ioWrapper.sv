@@ -1,7 +1,8 @@
 `include "dispConsts.svh"
 
-module vgaWrapper(clk, ioClk, memDataRead, memReadAdd, hSync, vSync, red, green, blue);
+module vgaWrapper(clk, vgaClk, ioClk, memDataRead, memReadAdd, hSync, vSync, red, green, blue);
    input clk;
+   input vgaClk;
    input ioClk;			// Clock who's +ve edge arrives with fresh IO data, much slower than the system clock
    input memDataRead [gc::WORD_SIZE-1:0]; // Data read from the memory
 
@@ -16,7 +17,7 @@ module vgaWrapper(clk, ioClk, memDataRead, memReadAdd, hSync, vSync, red, green,
    reg clk_25M = 0;
 
    integer clkDividerCounter = 0;
-
+   
    always @(posedge clk) begin
        clkDividerCounter++;
        if (clkDividerCounter == clkDivideBy) begin
@@ -27,6 +28,15 @@ module vgaWrapper(clk, ioClk, memDataRead, memReadAdd, hSync, vSync, red, green,
    
    reg [ASCII_SIZE-1:0] charBuffer [CHARS_VERT-1:0][CHARS_HORZ-1:0];
    
+   integer a, b;
+   
+   initial begin
+        for (a = 0; a < CHARS_VERT; a++) begin
+              for (b = 0; b < CHARS_HORZ; b++) begin
+                 charBuffer[a][b] = 7'b0000000;
+              end
+          end
+   end
    integer 		charBufferCounterX = 0, charBufferCounterY = 0;
    always @(posedge ioClk) begin
        charBufferCounterX += charsPerWord;
@@ -39,11 +49,11 @@ module vgaWrapper(clk, ioClk, memDataRead, memReadAdd, hSync, vSync, red, green,
 	   end
        end
        
-       // Todo: Move this to generate statement
-       charBuffer[charBufferCounterY][charBufferCounterX]   = { << {memDataRead[charsPerWord*4-1:charsPerWord*3-1]}};
-       charBuffer[charBufferCounterY][charBufferCounterX+1] = { << {memDataRead[charsPerWord*3-1:charsPerWord*2-1]}};
-       charBuffer[charBufferCounterY][charBufferCounterX+2] = { << {memDataRead[charsPerWord*2-1:charsPerWord-1]}};
-       charBuffer[charBufferCounterY][charBufferCounterX+3] = { << {memDataRead[charsPerWord-1:0]}};
+       // Todo: uncomment these lines and find correct value of charsPerWord
+       //charBuffer[charBufferCounterY][charBufferCounterX]   = { << {memDataRead[charsPerWord*4-1:charsPerWord*3-1]}};
+       //charBuffer[charBufferCounterY][charBufferCounterX+1] = { << {memDataRead[charsPerWord*3-1:charsPerWord*2-1]}};
+       //charBuffer[charBufferCounterY][charBufferCounterX+2] = { << {memDataRead[charsPerWord*2-1:charsPerWord-1]}};
+       charBuffer[charBufferCounterY][charBufferCounterX+3] = { << {memDataRead[8-1:0]}};
    end
 
    // charBufferCounter points to the virtual memory address used by the VGA module, this address
@@ -52,7 +62,7 @@ module vgaWrapper(clk, ioClk, memDataRead, memReadAdd, hSync, vSync, red, green,
    
    draw draw_inst 
      (
-      .clk_25M(clk_25M), 
+      .clk_25M(vgaClk), 
       .charBuffer(charBuffer), 
       .hSync(hSync), 
       .vSync(vSync), 

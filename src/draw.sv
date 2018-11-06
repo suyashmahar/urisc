@@ -18,6 +18,7 @@ module draw(clk_25M, charBuffer, hSync, vSync, red, green, blue);
    wire [32-1:0]       hPos, vPos;
    hvSyncGen hvInst(clk_25M, hSync, vSync, draw, hPos, vPos);
  
+   integer a, b, c;
    initial begin
        {{red}, {green}, {blue}} = 12'h000;
        // Initialise font ROM
@@ -33,11 +34,7 @@ module draw(clk_25M, charBuffer, hSync, vSync, red, green, blue);
    endfunction // getXYPixel
 
    always @(hPos, vPos) begin
-       //$display("%d:%d", hPos, vPos);
-       //{{red}, {green}, {blue}} = {12{getXYPixel(hPos, vPos, fontRom, charBuffer)}};
-       {{red}, {green}, {blue}} = {12{fontRom[(charBuffer[vPos/16][hPos/8])*16 + (vPos&4'b1111)][hPos&3'b111]}};
-       
-       //$display("For hPos: %d vPos: %d, got x: %d y: %d %d %d %d", hPos, vPos, charBuffer[vPos>>4][hPos>>3]<<4 + vPos&4'b1111, hPos&3'b111, vPos>>4, hPos>>4, vPos&4'b1111);
+       {{red}, {green}, {blue}} = {12{getXYPixel(hPos, vPos, fontRom, charBuffer)}};
    end
 endmodule // draw
 

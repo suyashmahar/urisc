@@ -1,15 +1,27 @@
 import gc::*;
 
-module top(clk, rst, hSync, vSync, red, green, blue, kbdClk, kbdDataIn);
+module top(clk_in, rst, hSync, vSync, red, green, blue, kbdClk, kbdDataIn, led);
    localparam VGA_I = 0, PS2_I = 1'b1;	// Position of VGA among I/O devices
    
-   input clk;			// FPGA on-board clock
+   input clk_in;			// FPGA on-board clock
    input rst;			// FPGA on-board reset
    input kbdClk, kbdDataIn;
    output hSync, vSync;
+   output [16-1:0] led;
+   assign led[16-1] = clk;
    
-   output reg [3-1:0] red, green, blue; // TODO: move '3' to gc
+   output wire [3-1:0] red, green, blue; // TODO: move '3' to gc
 
+   wire hSync_inv, vSync_in;
+   assign hSync = hSync_inv;
+   assign vSync = vSync_inv;
+   
+   wire clk;
+   top_clk top_clk_inst (
+        .clk_in(clk_in),
+        .clk_out(clk)
+   );
+   
    // IO bus and stuff
    wire [gc::WORD_SIZE-1:0] ioBus;
    wire 		    ioBusDirection [gc::IO_COUNT-1:0];
@@ -31,13 +43,13 @@ module top(clk, rst, hSync, vSync, red, green, blue, kbdClk, kbdDataIn);
    vgaWrapper vgaWrapper_inst
      (
       .clk(clk),
-
+      .vgaClk(clk),
       .ioClk(dataValidArr[VGA_I]),
       .memDataRead(dataOutArr_unpacked),
       .memReadAdd(addressInArr[VGA_I]),
        
-      .hSync(hSync),
-      .vSync(vSync),
+      .hSync(hSync_inv),
+      .vSync(vSync_inv),
       .red(red),
       .green(green),
       .blue(blue)
@@ -79,7 +91,9 @@ module top(clk, rst, hSync, vSync, red, green, blue, kbdClk, kbdDataIn);
       
       .ioBus(ioBus), 
       .ioBusDirection(memDir), 
-      .ioAddress(ioAddress)
+      .ioAddress(ioAddress),
+      
+      .led(led[15-1:0])
       );
    
 endmodule

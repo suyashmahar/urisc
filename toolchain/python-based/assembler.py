@@ -6,9 +6,9 @@ import os
 import string
 import sys
 
-""" 
+"""
 Assembler comment format:
-@<file-name>::<line-#>::<address>  
+@<file-name>::<line-#>::<address>
 
 """
 
@@ -219,7 +219,6 @@ def printLinearAssemOutput(linAssembledOutput, noAdd):
             print element.split(":")[1]
 
 linearizeAssembledOuput(assembledOutput)
-
 if '-p' in sys.argv[1:]:
     printLinearAssemOutput(linearAssembledOutput, False)
 
