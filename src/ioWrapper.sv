@@ -14,18 +14,6 @@ module vgaWrapper(clk, vgaClk, ioClk, memDataRead, memReadAdd, hSync, vSync, red
    localparam charsPerWord = gc::WORD_SIZE/ASCII_SIZE;
    localparam totalWordsInScreen = (CHARS_HORZ*CHARS_VERT)/(gc::WORD_SIZE/ASCII_SIZE);
    
-   reg clk_25M = 0;
-
-   integer clkDividerCounter = 0;
-   
-   always @(posedge clk) begin
-       clkDividerCounter++;
-       if (clkDividerCounter == clkDivideBy) begin
-	   clk_25M = ~clk_25M;
-	   clkDividerCounter = 0;
-       end
-   end
-   
    reg [ASCII_SIZE-1:0] charBuffer [CHARS_VERT-1:0][CHARS_HORZ-1:0];
    
    integer a, b;
@@ -60,9 +48,9 @@ module vgaWrapper(clk, vgaClk, ioClk, memDataRead, memReadAdd, hSync, vSync, red
    // will then be converted to the actual address where the char buffer in the memory is
    assign memReadAdd = charBufferCounterX + charBufferCounterY*CHARS_HORZ + gc::VGA_MEM_OFFSET; // TODO: signed to unsigned conversion
    
-   draw draw_inst 
+   /*draw draw_inst 
      (
-      .clk_25M(vgaClk), 
+      .clk_25M(clk), 
       .charBuffer(charBuffer), 
       .hSync(hSync), 
       .vSync(vSync), 
@@ -70,4 +58,14 @@ module vgaWrapper(clk, vgaClk, ioClk, memDataRead, memReadAdd, hSync, vSync, red
       .green(green), 
       .blue(blue)
       );
+  */
+   mojo_top mt_inst (
+          .clk(clk),
+         .charBuffer(charBuffer), 
+          .hsync_out(hSync),
+          .vsync_out(vSync),
+          .red(red),
+          .green(green),
+          .blue(blue)
+         );
 endmodule

@@ -5,7 +5,7 @@
 package gc; // Global Constants
    parameter WORD_SIZE = 64;
    parameter IO_COUNT = 2;
-   parameter MEM_SIZE = 116;
+   parameter MEM_SIZE = 2400;
    parameter ASCII_SIZE = 8;
       
    parameter ARG_A_SIZE = 20;
@@ -39,8 +39,8 @@ package gc; // Global Constants
    parameter VGA_I = 1'b0, PS2_I = 1'b1;
    
    // Offsets for virtual to physical memory conversions
-   parameter VGA_MEM_OFFSET = 64'h81;
-   parameter KEYBOARD_ADD = 64'h00; // TODO: Fix this
+   parameter VGA_MEM_OFFSET = 64'h00;//64'h81;
+   parameter KEYBOARD_ADD = 64'h20; // TODO: Fix this
       
 endpackage : gc// globals
    

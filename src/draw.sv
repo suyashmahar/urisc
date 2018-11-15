@@ -16,7 +16,7 @@ module draw(clk_25M, charBuffer, hSync, vSync, red, green, blue);
 
    wire 	       draw;
    wire [32-1:0]       hPos, vPos;
-   hvSyncGen hvInst(clk_25M, hSync, vSync, draw, hPos, vPos);
+   hvSyncGen hvInst(.clk(clk_25M), .vga_h_sync(hSync), .vga_v_sync(vSync), .inDisplayArea(draw), .CounterX(hPos), .CounterY(vPos));
  
    integer a, b, c;
    initial begin
@@ -34,7 +34,7 @@ module draw(clk_25M, charBuffer, hSync, vSync, red, green, blue);
    endfunction // getXYPixel
 
    always @(hPos, vPos) begin
-       {{red}, {green}, {blue}} = {12{getXYPixel(hPos, vPos, fontRom, charBuffer)}};
+       {{red}, {green}, {blue}} = 1;//{12{getXYPixel(hPos, vPos, fontRom, charBuffer)}};
    end
 endmodule // draw
 

@@ -11,9 +11,9 @@ module urisc_vga_tb;
       
    integer 	out_f;
    
-   urisc dut 
+   top dut 
      (
-        .clk(clk), .rst(rst), .led(led)
+        .clk_in(clk), .rst(rst), .led(led), .red(red), .green(green), .blue(blue), .hSync(hSync), .vSync(vSync)
       );
 
    initial begin
@@ -26,7 +26,7 @@ module urisc_vga_tb;
    end
 
    always begin
-       clk = #0.02 ~clk;
+       clk = #10 ~clk;
        $fwrite(out_f, "%d ns: %b %b %b %b %b\n", $time, hSync, vSync, red, green, blue);
    end
       

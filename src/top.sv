@@ -8,13 +8,10 @@ module top(clk_in, rst, hSync, vSync, red, green, blue, kbdClk, kbdDataIn, led);
    input kbdClk, kbdDataIn;
    output hSync, vSync;
    output [16-1:0] led;
-   assign led[16-1] = clk;
+   assign led[16-1] = ioClk;
    
    output wire [3-1:0] red, green, blue; // TODO: move '3' to gc
 
-   wire hSync_inv, vSync_in;
-   assign hSync = hSync_inv;
-   assign vSync = vSync_inv;
    
    wire clk;
    top_clk top_clk_inst (
@@ -48,12 +45,21 @@ module top(clk_in, rst, hSync, vSync, red, green, blue, kbdClk, kbdDataIn, led);
       .memDataRead(dataOutArr_unpacked),
       .memReadAdd(addressInArr[VGA_I]),
        
-      .hSync(hSync_inv),
-      .vSync(vSync_inv),
+      .hSync(hSync),
+      .vSync(vSync),
       .red(red),
       .green(green),
       .blue(blue)
       );
+   /*mojo_top mt_inst (
+    .clk(clk),
+    .hsync_out(hSync),
+    .vsync_out(vSync),
+    .red(red),
+    .green(green),
+    .blue(blue)
+   );*/
+
 
    ps2Wrapper ps2Wrapper_inst
      (
