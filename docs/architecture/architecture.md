@@ -20,5 +20,5 @@ Instruction Encoding
 ```
    0     bbbbb     bbbbb     bbbbb  
    ^       ^         ^         ^  
-Unused     c         b         a  
+Unused  c (20b)   b (20b)   a (20b)  
 ```
